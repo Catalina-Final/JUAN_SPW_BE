@@ -1,27 +1,28 @@
 var express = require("express");
 var router = express.Router();
 
-// User API
+// userApi
 const userApi = require("./userApi");
 router.use("/users", userApi);
 
-//authApi
+// authApi
 const authApi = require("./authApi");
 router.use("/auth", authApi);
 
-//blogApi
+// blogApi
 const blogApi = require("./blogApi");
 router.use("/blogs", blogApi);
-module.exports = router;
 
-//reviewApi
+// reviewApi
 const reviewApi = require("./reviewApi");
 router.use("/reviews", reviewApi);
-module.exports = router;
 
-//reactionApi
+// reactionApi
 const reactionApi = require("./reactionApi");
 router.use("/reactions", reactionApi);
-module.exports = router;
+
+// friendshipApi
+const friendshipApi = require("./friendshipApi");
+router.use("/friends", friendshipApi);
 
 module.exports = router;
