@@ -10,12 +10,12 @@ reviewController.createNewReview = catchAsync(async (req, res, next) => {
   const userId = req.userId;
   const blogId = req.params.id;
   const { content } = req.body;
-  const review = await Review.create({
+  let review = await Review.create({
     user: userId,
     blog: blogId,
     content,
   });
-
+  review = await review.populate("user").execPopulate();
   return sendResponse(
     res,
     200,

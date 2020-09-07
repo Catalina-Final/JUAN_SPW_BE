@@ -27,7 +27,7 @@ router.get(
 
 /**
  * @route POST api/blogs
- * @description POST a single blog
+ * @description POST a single blog/ Create a new blog
  * @access required
  */
 router.post(

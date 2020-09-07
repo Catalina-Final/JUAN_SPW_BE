@@ -5,6 +5,7 @@ const {
 } = require("../helpers/utils.helper");
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
+const { default: Axios } = require("axios");
 const authController = {};
 
 authController.loginWithEmail = catchAsync(async (req, res, next) => {
@@ -16,6 +17,60 @@ authController.loginWithEmail = catchAsync(async (req, res, next) => {
   if (!isMatch) return next(new Error("Wrong password"));
 
   accessToken = await user.generateToken();
+  return sendResponse(
+    res,
+    200,
+    true,
+    { user, accessToken },
+    null,
+    "Login Successful"
+  );
+});
+
+authController.loginWithFacebook = catchAsync(async (req, res, next) => {
+  const { token } = req.params;
+  const { data } = await Axios.get(
+    `https://graph.facebook.com/me?fields=id,name,email&access_token=${token}`
+  );
+  let user = await User.findOne({ email: data.email });
+
+  if (!user) {
+    user = await User.create({
+      email: data.email,
+      name: data.name,
+    });
+  }
+
+  const accessToken = await user.generateToken();
+
+  return sendResponse(
+    res,
+    200,
+    true,
+    { user, accessToken },
+    null,
+    "Login Successful"
+  );
+});
+
+authController.loginWithGoogle = catchAsync(async (req, res, next) => {
+  const { token } = req.params;
+  const { data } = await Axios.get(
+    `https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=${token}`
+  );
+  // const data = response.data;
+  let user = await User.findOne({ email: data.email });
+  console.log("GOOOGELEE data", req.params);
+  if (!user) {
+    user = await User.create({
+      email: data.email,
+      name: data.profileObj.givenName,
+    });
+    console.log("GOOOOOGLEEEEEE", name);
+  }
+
+  const accessToken = await user.generateToken();
+
   return sendResponse(
     res,
     200,

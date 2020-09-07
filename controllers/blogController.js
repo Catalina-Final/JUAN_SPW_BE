@@ -7,15 +7,40 @@ const Blog = require("../models/blog");
 const blogController = {};
 
 blogController.getBlogs = catchAsync(async (req, res, next) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
+  // begin filter query
+  let filter = { ...req.query.filter };
 
-  const totalBlogs = await Blog.countDocuments();
+  // end
+
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 9;
+  const totalBlogs = await Blog.find(filter).countDocuments();
   const totalPages = Math.ceil(totalBlogs / limit);
   const offset = limit * (page - 1);
 
-  const blogs = await Blog.find().sort({ createdAt: -1 }).skip(offset).limit();
-  return sendResponse(res, 200, true, { blogs, totalPages }, null, "");
+  // begin  sorting query
+  const sortBy = req.query.sortBy || {};
+  if (!sortBy.createdAt) {
+    sortBy.createdAt = 1;
+  }
+
+  console.log(sortBy);
+  // end
+
+  const blogs = await Blog.find(filter)
+    .sort(sortBy)
+    .skip(offset)
+    .limit(limit)
+    .populate("author");
+
+  return sendResponse(
+    res,
+    200,
+    true,
+    { blogs, totalPages, totalResults: totalBlogs },
+    null,
+    ""
+  );
 });
 
 blogController.getSingleBlog = catchAsync(async (req, res, next) => {
@@ -27,8 +52,8 @@ blogController.getSingleBlog = catchAsync(async (req, res, next) => {
 
 blogController.createNewBlog = catchAsync(async (req, res, next) => {
   const author = req.userId;
-  const { title, content } = req.body;
-  const blog = await Blog.create({ title, content, author });
+  const { title, content, tags } = req.body;
+  const blog = await Blog.create({ title, content, author, tags });
 
   return sendResponse(
     res,
