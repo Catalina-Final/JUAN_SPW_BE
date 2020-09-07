@@ -56,17 +56,17 @@ authController.loginWithFacebook = catchAsync(async (req, res, next) => {
 authController.loginWithGoogle = catchAsync(async (req, res, next) => {
   const { token } = req.params;
   const { data } = await Axios.get(
-    `https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=${token}`
+    ` https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${token}`
   );
+  console.log("GOOOGELEE data", data);
   // const data = response.data;
   let user = await User.findOne({ email: data.email });
-  console.log("GOOOGELEE data", req.params);
+
   if (!user) {
     user = await User.create({
       email: data.email,
-      name: data.profileObj.givenName,
+      name: data.name,
     });
-    console.log("GOOOOOGLEEEEEE", name);
   }
 
   const accessToken = await user.generateToken();
