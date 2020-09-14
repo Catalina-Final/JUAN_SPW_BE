@@ -20,6 +20,7 @@ const blogSchema = Schema(
     reviewCount: { type: Number, default: 0 },
     isDeleted: { type: Boolean, default: false },
     tags: [String],
+    images: [String],
   },
   { timestamps: true }
 );

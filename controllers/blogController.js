@@ -52,8 +52,8 @@ blogController.getSingleBlog = catchAsync(async (req, res, next) => {
 
 blogController.createNewBlog = catchAsync(async (req, res, next) => {
   const author = req.userId;
-  const { title, content, tags } = req.body;
-  const blog = await Blog.create({ title, content, author, tags });
+  const { title, content, tags, images } = req.body;
+  const blog = await Blog.create({ title, content, author, tags, images });
 
   return sendResponse(
     res,
