@@ -9,13 +9,13 @@ router.use("/users", userApi);
 const authApi = require("./authApi");
 router.use("/auth", authApi);
 
+// reviewApi
+const reviewApi = require("./reviewApi");
+router.use("/blogs/:blogId/reviews", reviewApi);
+
 // blogApi
 const blogApi = require("./blogApi");
 router.use("/blogs", blogApi);
-
-// reviewApi
-const reviewApi = require("./reviewApi");
-router.use("/reviews", reviewApi);
 
 // reactionApi
 const reactionApi = require("./reactionApi");

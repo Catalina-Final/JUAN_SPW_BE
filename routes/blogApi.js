@@ -34,8 +34,8 @@ router.post(
   "/",
   authMiddleware.loginRequired,
   validators.validate([
-    body("title", "missing Title").exists().notEmpty(),
-    body("content", "missing content").exists().notEmpty(),
+    // body("title", "missing Title").exists().notEmpty(),
+    // body("content", "missing content").exists().notEmpty(),
   ]),
 
   blogController.createNewBlog

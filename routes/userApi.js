@@ -49,5 +49,6 @@ router.get("/forget/:email", userController.forgetPassword);
 router.get("/forget/reset-password", userController.resetPassword);
 
 router.put("/", authMiddleware.loginRequired, userController.updateProfile);
+router.get("/me", authMiddleware.loginRequired, userController.getCurrentUser);
 
 module.exports = router;

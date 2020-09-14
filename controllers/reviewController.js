@@ -8,7 +8,7 @@ const reviewController = {};
 
 reviewController.createNewReview = catchAsync(async (req, res, next) => {
   const userId = req.userId;
-  const blogId = req.params.id;
+  const blogId = req.params.blodId;
   const { content } = req.body;
   let review = await Review.create({
     user: userId,
@@ -26,7 +26,7 @@ reviewController.createNewReview = catchAsync(async (req, res, next) => {
   );
 });
 reviewController.getReviewsOfBlog = catchAsync(async (req, res, next) => {
-  const blogId = req.params.id;
+  const blogId = req.params.blogId;
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const totalReviews = await Review.countDocuments();
@@ -39,6 +39,7 @@ reviewController.getReviewsOfBlog = catchAsync(async (req, res, next) => {
     .limit();
   return sendResponse(res, 200, true, { reviews, totalPages }, null, "");
 });
+
 reviewController.updateSingleReview = catchAsync(async (req, res, next) => {
   const userId = req.userId;
   const reviewId = req.params.id;

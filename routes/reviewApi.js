@@ -1,5 +1,5 @@
 const express = require("express");
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 const reviewController = require("../controllers/reviewController");
 const { param, body } = require("express-validator");
 const authMiddleware = require("../middlewares/authentication");
@@ -10,10 +10,15 @@ const validators = require("../middlewares/validators");
  * @description Get reviews of a blog with pagination
  * @access Public
  */
+
+//  router.route("/:id")
+//  .get()
+//  .post()
+//  .put()
 router.get(
-  "/blogs/:id",
+  "/",
   validators.validate([
-    param("id").exists().isString().custom(validators.checkObjectId),
+    param("blogId").exists().isString().custom(validators.checkObjectId),
   ]),
   reviewController.getReviewsOfBlog
 );
@@ -24,10 +29,10 @@ router.get(
  * @access required
  */
 router.post(
-  "/blogs/:id",
+  "/",
   authMiddleware.loginRequired,
   validators.validate([
-    param("id").exists().isString().custom(validators.checkObjectId),
+    param("blogId").exists().isString().custom(validators.checkObjectId),
     body("content", "missing content").exists().notEmpty(),
   ]),
 
