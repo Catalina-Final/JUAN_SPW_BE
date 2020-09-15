@@ -1,27 +1,34 @@
-// const mongoose = require("mongoose");
-// const Schema = mongoose.Schema;
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
-// const eventSchema = Schema({
-//   title: { type: String, required: true },
-//   description: { type: String, required: true },
-//   location: { type: String, required: true },
-//   coverImg: { type: String, required: true },
-//   category: {
-//     type: String,
-//     required: true,
-//     enum: [
-//       "street walk",
-//       "photo trip",
-//       "exhibiton",
-//       "workshop",
-//       "networking",
-//       "charity",
-//     ],
-//   },
+const eventSchema = Schema(
+  {
+    title: { type: String, required: true },
+    content: { type: String, required: true },
+    author: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      ref: "User",
+    },
+    reactions: {
+      laugh: { type: Number, default: 0 },
+      sad: { type: Number, default: 0 },
+      like: { type: Number, default: 0 },
+      love: { type: Number, default: 0 },
+      angry: { type: Number, default: 0 },
+    },
+    reviewCount: { type: Number, default: 0 },
+    isDeleted: { type: Boolean, default: false },
+    tags: [String],
+    images: [String],
+    eventType: {
+      type: Schema.Types.ObjectId,
+      ref: "EventType",
+      required: false,
+    },
+  },
+  { timestamps: true }
+);
 
-//   author: {
-//     type: Schema.Types.ObjectId,
-//     required: true,
-//     ref: "User",
-//   },
-// });
+eventSchema.plugin(require("./plugins/isDeletedFalse"));
+module.exports = mongoose.model("Event", eventSchema);

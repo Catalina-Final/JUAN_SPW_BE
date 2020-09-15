@@ -9,10 +9,12 @@ const mongoURI = process.env.MONGODB_URI;
 
 var app = express();
 
+app.use(cors());
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
 mongoose.plugin(require("./models/plugins/modifiedAt"));
 mongoose
   .connect(mongoURI, {
@@ -24,37 +26,24 @@ mongoose
   })
   .then(() => {
     console.log(`Mongoose connected to ${mongoURI}`);
+    utilsHelper.createEventTypesIfNotExists();
     // require("./testing/testSchema");
   })
 
   .catch((err) => console.log(err));
 app.use(express.static(path.join(__dirname, "public")));
 const utilsHelper = require("./helpers/utils.helper");
-app.use(cors());
-module.exports = app;
+const { AppError } = require("./helpers/utils.helper");
 
 /* Initialize Routes */
 app.use("/api", indexRouter);
 
 // catch 404 and forard to error handler
 app.use((req, res, next) => {
-  const err = new Error("url Not Found");
+  const err = new AppError(404, "url Not Found");
   err.statusCode = 404;
   next(err);
 });
-
-/* Initialize Error Handling */
-// app.use((err, req, res, next) => {
-//   console.log("ERROR", err);
-//   return utilsHelper.sendResponse(
-//     res,
-//     err.statusCode ? err.statusCode : 500,
-//     false,
-//     null,
-//     [{ message: err }],
-//     null
-//   );
-// });
 
 app.use((err, req, res, next) => {
   if (process.env.ENV_MODE === "development") {

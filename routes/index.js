@@ -25,4 +25,8 @@ router.use("/reactions", reactionApi);
 const friendshipApi = require("./friendshipApi");
 router.use("/friends", friendshipApi);
 
+//eventapi
+const eventApi = require("./eventApi");
+router.use("/events", eventApi);
+
 module.exports = router;

@@ -1,4 +1,7 @@
 "use strict";
+
+const EventType = require("../models/eventType");
+
 const utilsHelper = {};
 
 // This function controls the way we response to the client
@@ -27,4 +30,30 @@ utilsHelper.catchAsync = (func) => {
   //  for catch() if you simply call another func like below, it will automatically pass the only parameter to the func
   return (req, res, next) => func(req, res, next).catch(next); // not executing the func
 };
+
+utilsHelper.AppError = AppError;
+
+utilsHelper.createEventTypesIfNotExists = async () => {
+  try {
+    let types = [
+      "street walk",
+      "photo trip",
+      "exhibiton",
+      "workshop",
+      "networking",
+      "charity",
+    ];
+    let eventType;
+    for (let i = 0; i < types.length; i++) {
+      eventType = await EventType.findOne({ type: types[i] });
+      if (!eventType) {
+        await EventType.create({ type: types[i] });
+      }
+    }
+    console.log("Created event types");
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 module.exports = utilsHelper;
