@@ -32,7 +32,8 @@ eventController.getEvents = catchAsync(async (req, res, next) => {
     .sort(sortBy)
     .skip(offset)
     .limit(limit)
-    .populate("author");
+    .populate("author")
+    .populate("type");
 
   return sendResponse(
     res,
@@ -45,7 +46,7 @@ eventController.getEvents = catchAsync(async (req, res, next) => {
 });
 
 eventController.getSingleEvent = catchAsync(async (req, res, next) => {
-  const event = await Event.findById(req.params.id);
+  const event = await Event.findById(req.params.id).populate("eventType");
   if (!event) return next(new Error("Event not Found"));
 
   return sendResponse(res, 200, true, event, null, null);
@@ -106,8 +107,8 @@ eventController.deleteSingleEvent = catchAsync(async (req, res, next) => {
 // Get event types
 eventController.getTypes = catchAsync(async (req, res, next) => {
   const types = await EventType.find({}, "type");
-
-  return sendResponse(res, 200, true, eventType, null, null);
+  console.log("TYPEEEEE", types);
+  return sendResponse(res, 200, true, types, null, null);
 });
 
 module.exports = eventController;

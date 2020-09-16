@@ -22,8 +22,8 @@ reviewSchema.statics.calculateReviews = async function (blogId) {
   let reviewCount = await this.find({ blog: blogId }).count();
   await Blog.findIdAndUpdate(blogId, { reviewCount: reviewCount });
 };
-reviewSchema.post("save", function () {
-  this.constructor.calculateReviews(this.blog);
+reviewSchema.post("save", async function () {
+  await this.constructor.calculateReviews(this.blog);
 });
 // Neither findByIdAndUpdate norfindByIdAndDelete have access to document middleware.
 // They only get access to query middleware

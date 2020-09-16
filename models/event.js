@@ -24,7 +24,7 @@ const eventSchema = Schema(
     eventType: {
       type: Schema.Types.ObjectId,
       ref: "EventType",
-      required: false,
+      required: true,
     },
   },
   { timestamps: true }
