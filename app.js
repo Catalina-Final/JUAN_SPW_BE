@@ -6,6 +6,7 @@ const cors = require("cors");
 var indexRouter = require("./routes/index");
 const mongoose = require("mongoose");
 const mongoURI = process.env.MONGODB_URI;
+var usersRouter = require("./routes/userApi");
 
 var app = express();
 
@@ -37,6 +38,7 @@ const { AppError } = require("./helpers/utils.helper");
 
 /* Initialize Routes */
 app.use("/api", indexRouter);
+app.use("/users", usersRouter);
 
 // catch 404 and forard to error handler
 app.use((req, res, next) => {

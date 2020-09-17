@@ -20,6 +20,11 @@ router.post(
   userController.register
 );
 
+/* GET users listing. */
+router.get("/", function (req, res, next) {
+  res.send("respond with a resource");
+});
+
 // GET localhost:5000/api/users/sendtestemail
 router.get(
   "/sendtestemail",
