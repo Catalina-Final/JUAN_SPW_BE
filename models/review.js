@@ -5,8 +5,8 @@ const Schema = mongoose.Schema;
 const reviewSchema = Schema(
   {
     content: { type: String, required: true },
-    user: { type: Schema.ObjectId, required: true, ref: "User" },
-    blog: { type: Schema.ObjectId, required: true, ref: "Blog" },
+    user: { type: Schema.Types.ObjectId, required: true, ref: "User" },
+    blog: { type: Schema.Types.ObjectId, required: true, ref: "Blog" },
     reactions: {
       laugh: { type: Number, default: 0 },
       sad: { type: Number, default: 0 },
@@ -20,7 +20,7 @@ const reviewSchema = Schema(
 
 reviewSchema.statics.calculateReviews = async function (blogId) {
   let reviewCount = await this.find({ blog: blogId }).count();
-  await Blog.findIdAndUpdate(blogId, { reviewCount: reviewCount });
+  await Blog.findByIdAndUpdate(blogId, { reviewCount: reviewCount });
 };
 reviewSchema.post("save", async function () {
   await this.constructor.calculateReviews(this.blog);

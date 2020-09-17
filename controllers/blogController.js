@@ -4,6 +4,7 @@ const {
   AppError,
 } = require("../helpers/utils.helper");
 const Blog = require("../models/blog");
+const Review = require("../models/review");
 const blogController = {};
 
 blogController.getBlogs = catchAsync(async (req, res, next) => {
@@ -13,7 +14,7 @@ blogController.getBlogs = catchAsync(async (req, res, next) => {
   // end
 
   const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 9;
+  const limit = parseInt(req.query.limit) || 5;
   const totalBlogs = await Blog.find(filter).countDocuments();
   const totalPages = Math.ceil(totalBlogs / limit);
   const offset = limit * (page - 1);
@@ -28,7 +29,7 @@ blogController.getBlogs = catchAsync(async (req, res, next) => {
   // end
 
   const blogs = await Blog.find(filter)
-    .sort(sortBy)
+    .sort({ ...sortBy, createdAt: -1 })
     .skip(offset)
     .limit(limit)
     .populate("author");

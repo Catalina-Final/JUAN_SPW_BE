@@ -8,7 +8,7 @@ const reviewController = {};
 
 reviewController.createNewReview = catchAsync(async (req, res, next) => {
   const userId = req.userId;
-  const blogId = req.params.blodId;
+  const blogId = req.params.blogId;
   const { content } = req.body;
   let review = await Review.create({
     user: userId,
@@ -25,6 +25,7 @@ reviewController.createNewReview = catchAsync(async (req, res, next) => {
     "Create a new review successfuly"
   );
 });
+
 reviewController.getReviewsOfBlog = catchAsync(async (req, res, next) => {
   const blogId = req.params.blogId;
   const page = parseInt(req.query.page) || 1;
@@ -36,9 +37,29 @@ reviewController.getReviewsOfBlog = catchAsync(async (req, res, next) => {
   const reviews = await Review.find({ blog: blogId })
     .sort({ createdAt: -1 })
     .skip(offset)
-    .limit();
+    .limit()
+    .populate("user");
   return sendResponse(res, 200, true, { reviews, totalPages }, null, "");
 });
+
+// reviewController.deleteSingleReview = catchAsync(async (req, res, next) => {
+//   const userId = req.userId;
+//   const reviewId = req.params.id;
+
+//   const review = await Review.findOneAndDelete({
+//     _id: reviewId,
+//     user: userId,
+//   });
+//   if (!review)
+//     return next(
+//       new AppError(
+//         400,
+//         "Review not found or User not authorized",
+//         "Delete Review Error"
+//       )
+//     );
+//   return sendResponse(res, 200, true, null, null, "Delete successful");
+// });
 
 reviewController.updateSingleReview = catchAsync(async (req, res, next) => {
   const userId = req.userId;

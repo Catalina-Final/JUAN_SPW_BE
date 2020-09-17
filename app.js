@@ -46,6 +46,7 @@ app.use((req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
+  console.log("ERRROOR", err);
   if (process.env.ENV_MODE === "development") {
     return utilsHelper.sendResponse(
       res,

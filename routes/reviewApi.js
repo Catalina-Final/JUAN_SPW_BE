@@ -16,7 +16,7 @@ const validators = require("../middlewares/validators");
 //  .post()
 //  .put()
 router.get(
-  "/",
+  "/blogs/:blogId",
   validators.validate([
     param("blogId").exists().isString().custom(validators.checkObjectId),
   ]),
@@ -29,7 +29,7 @@ router.get(
  * @access required
  */
 router.post(
-  "/",
+  "/blogs/:blogId",
   authMiddleware.loginRequired,
   validators.validate([
     param("blogId").exists().isString().custom(validators.checkObjectId),
