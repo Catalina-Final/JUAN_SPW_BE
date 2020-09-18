@@ -1,99 +1,97 @@
-const Server = require("../models/server");
-const Chat = require("../models/chat");
-const Room = require("../models/room");
+const socket_io = require("socket.io");
+const jwt = require("jsonwebtoken");
+const User = require("../models/user");
+const Message = require("../models/Message");
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 
-module.exports = function (io) {
-  io.on("connection", async function (socket) {
-    // fetch rooms
-    socket.emit("rooms", await Room.find().populate("members"));
-
-    // logins
-    socket.on("login", async (name, res) => {
-      const user = await Server.login(name, socket.id);
-      return res(user);
-    });
-
-    // join room
-    socket.on("joinRoom", async (roomID, res) => {
-      try {
-        // check user
-        const user = await Server.checkUser(socket.id);
-
-        // join room (DB)
-        const room = await user.joinRoom(roomID);
-
-        // subscribe user to the room
-        socket.join(room._id);
-
-        // send notification message;
-        socket.to(room._id).broadcast.emit("message", {
-          user: {
-            name: "System",
-          },
-          type: "string",
-          chat: `Welcome ${user.user.name} to room ${room.room}`,
-        });
-
-        const chatHistory = await Chat.find({ room: room._id })
-          .populate("user")
-          .sort("-createdAt")
-          .limit(20);
-        chatHistory.unshift({
-          user: {
-            name: "System",
-          },
-          type: "string",
-          chat: `Welcome to room ${room.room}`,
-        });
-
-        console.log(room._id);
-        socket.emit("chatHistory", chatHistory.reverse());
-        const rooms = await Room.find().populate("members");
-        console.log(rooms);
-        io.emit("rooms", rooms);
-        return res({ status: "ok", data: { room: room } });
-      } catch (err) {
-        console.log(err);
-        return res({ status: "error", message: err.message });
-      }
-    });
-
-    // chat
-    socket.on("sendMessage", async function (message) {
-      const user = await Server.checkUser(socket.id);
-      const chat = await user.chat(message);
-      io.to(user.user.room._id).emit("message", chat);
-    });
-
-    // leave room
-    socket.on("leaveRoom", async function (roomID) {
-      socket.leave(roomId);
-    });
-    //   const user = await Server.checkUser(socket.id);
-    //   console.log(user.user.room._id);
-    //   socket.to(user.user.room._id).broadcast.emit("message", {
-    //     chat: `${user.user.name} has left the room`,
-    //     user: {
-    //       name: "System",
-    //     },
-    //   });
-    //   socket.leave(roomID);
-    // });
-
-    socket.on("disconnect", async function () {
-      const user = await Server.checkUser(socket.id);
-      console.log(user.user.room._id);
-      socket.to(user.user.room._id).broadcast.emit("message", {
-        user: {
-          name: "System",
-        },
-        chat: `${user.user.name} has left the room`,
-      });
-      user.user.room = null;
-      await user.user.save();
-      socket.leave(user.user.room);
-      const rooms = await Room.find().populate("members");
-      io.emit("rooms", rooms);
-    }); //disconnect
-  });
+const io = socket_io();
+const socketApi = {};
+let onlineUsers = {};
+const socketTypes = {
+  NOTIFICATION: "SOCKET.NOTIFICATION",
+  CLIENT_SEND: "SOCKET.CLIENT_SEND",
+  CLIENT_RECEIVE: "SOCKET.CLIENT_RECEIVE",
+  ERROR: "SOCKET.ERROR",
 };
+
+socketApi.io = io;
+
+io.use((socket, next) => {
+  try {
+    const accessToken = socket.handshake.query.accessToken;
+    const roomId = socket.handshake.query.roomId;
+    jwt.verify(accessToken, JWT_SECRET_KEY, (err, payload) => {
+      if (err) {
+        if (err.name === "TokenExpiredError") {
+          return next(new Error("Token expired"));
+        } else {
+          return next(new Error("Token is invalid"));
+        }
+      }
+      socket.userId = payload._id;
+      socket.roomId = roomId;
+    });
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+io.on("connection", async function (socket) {
+  if (!onlineUsers[socket.roomId]) {
+    onlineUsers[socket.roomId] = new Set([socket.userId]);
+  } else {
+    onlineUsers[socket.roomId].push(socket.userId);
+    console.log(onlineUsers);
+  }
+  socket.join(socket.roomId);
+  console.log("Connected", socket.userId, "Room", socket.roomId);
+
+  try {
+    let oldMessages = await (
+      await Message.find({ roomId: socket.roomId }, "-updatedAt")
+        .sort({ _id: -1 })
+        .limit(100)
+        .populate("user", "name avatarUrl")
+    ).reverse();
+    io.to(socket.roomId).emit(socketTypes.NOTIFICATION, {
+      onlineUsers: [...onlineUsers[socket.roomId]],
+      oldMessages,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+
+  socket.on(socketTypes.CLIENT_SEND, async (msg) => {
+    try {
+      console.log(msg);
+      if (msg.body) {
+        const user = await User.findById(msg.from, "name avatarUrl");
+        if (user && user._id.equals(socket.userId)) {
+          const newMessage = await Message.create({
+            roomId: socket.roomId,
+            user,
+            body: msg.body,
+          });
+          io.to(socket.roomId).emit(socketTypes.CLIENT_RECEIVE, newMessage);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
+  socket.on("error", (error) => {
+    console.log(error);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Disconnected", socket.userId);
+    onlineUsers[socket.roomId].delete(socket.userId);
+    io.to(socket.roomId).emit(socketTypes.NOTIFICATION, {
+      onlineUsers: [...onlineUsers[socket.roomId]],
+    });
+  });
+});
+
+module.exports = socketApi;

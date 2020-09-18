@@ -30,14 +30,16 @@ authController.loginWithEmail = catchAsync(async (req, res, next) => {
 authController.loginWithFacebook = catchAsync(async (req, res, next) => {
   const { token } = req.params;
   const { data } = await Axios.get(
-    `https://graph.facebook.com/me?fields=id,name,email&access_token=${token}`
+    `https://graph.facebook.com/me?fields=id,name,email,picture&access_token=${token}`
   );
+  console.log("FACEBOOOOK data", data);
   let user = await User.findOne({ email: data.email });
 
   if (!user) {
     user = await User.create({
       email: data.email,
       name: data.name,
+      avatarUrl: data.picture.data.url,
     });
   }
 
@@ -66,7 +68,9 @@ authController.loginWithGoogle = catchAsync(async (req, res, next) => {
     user = await User.create({
       email: data.email,
       name: data.name,
+      avatarUrl: data.picture,
     });
+    console.log("PICTUREE", avatarUrl);
   }
 
   const accessToken = await user.generateToken();

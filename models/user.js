@@ -8,9 +8,14 @@ const userSchema = Schema(
   {
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
+    avatarUrl: { type: String, required: false },
     password: { type: String },
     friendCount: { type: Number, default: 0 },
     isDeleted: { type: Boolean, default: false },
+    room: {
+      type: mongoose.Schema.ObjectId,
+      ref: "Room",
+    },
   },
   {
     toJSON: { virtuals: true },

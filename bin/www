@@ -84,3 +84,10 @@ function onListening() {
   var bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
   debug("Listening on " + bind);
 }
+
+/**
+ * Socket.io
+ */
+var socketApi = require("../routes/socketApi");
+var io = socketApi.io;
+io.attach(server);
