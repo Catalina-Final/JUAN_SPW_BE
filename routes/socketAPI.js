@@ -85,6 +85,11 @@ io.on("connection", async function (socket) {
     console.log(error);
   });
 
+  socket.on("shareLocation", async ({ lat, lng, room }) => {
+    console.log(lat, lng, room);
+    io.to(room).emit("sharingLocation", { lat, lng, room });
+  });
+
   socket.on("disconnect", () => {
     console.log("Disconnected", socket.userId);
     onlineUsers[socket.roomId].delete(socket.userId);
