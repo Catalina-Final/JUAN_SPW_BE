@@ -36,13 +36,16 @@ io.use((socket, next) => {
     next(error);
   }
 });
-
+//dasdsad
 io.on("connection", async function (socket) {
   if (!onlineUsers[socket.roomId]) {
     onlineUsers[socket.roomId] = new Set([socket.userId]);
+    console.log("43", onlineUsers);
   } else {
-    onlineUsers[socket.roomId].push(socket.userId);
-    console.log(onlineUsers);
+    onlineUsers[socket.roomId] = new Set([socket.userId]);
+
+    console.log("Online USers 45", onlineUsers, socket.roomId);
+    onlineUsers[socket.roomId].add(socket.userId);
   }
   socket.join(socket.roomId);
   console.log("Connected", socket.userId, "Room", socket.roomId);
