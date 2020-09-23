@@ -6,6 +6,17 @@ const authMiddleware = require("../middlewares/authentication");
 const validators = require("../middlewares/validators");
 
 /**
+ * @route GET api/events/user/:id?page=1&limit=10
+ * @description Get events with pagination of the current user
+ * @access Login required
+ */
+router.get(
+  "/user/:id",
+  authMiddleware.loginRequired,
+  eventController.getEventsPerUser
+);
+
+/**
  * @route GET api/events?page=1&limit=10
  * @description Get events with pagination
  * @access Public

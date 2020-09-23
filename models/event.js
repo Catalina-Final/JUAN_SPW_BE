@@ -26,6 +26,11 @@ const eventSchema = Schema(
       ref: "EventType",
       required: true,
     },
+    date: { type: Date },
+    startHour: { type: String, required: true },
+    endHour: { type: String, required: true },
+    start: { type: String },
+    end: { type: String },
   },
   { timestamps: true }
 );

@@ -216,28 +216,26 @@ userController.removeFriendship = catchAsync(async (req, res, next) => {
 
 userController.updateProfile = catchAsync(async (req, res, next) => {
   const userId = req.userId;
+  const allows = ["name", "password", "avatarUrl"];
+  const user = await User.findById(userId);
+  if (!user) {
+    return next(new AppError(404, "Account not found", "Update Profile Error"));
+  }
 
-  let profile = await User.findOne({ _id: userId, isDeleted: false });
-  const arr = ["name", "age", "description", "address", "password"];
-  arr.forEach((element) => {
-    console.log(req.body[element]);
-    if (req.body[element]) {
-      profile[element] = req.body[element];
+  allows.forEach((field) => {
+    if (req.body[field] !== undefined) {
+      user[field] = req.body[field];
     }
   });
-
-  // const not = ["email", "friendCount", "isDeleted"];
-  // for (let key in req.body) {
-  //   if (not.includes(key)) {
-  //     delete req.body[key];
-  //   } else {
-  //     profile[key] = req.body[key];
-  //   }
-  // }
-  console.log(req.body);
-  await profile.save();
-
-  return sendResponse(res, 200, true, profile, null, "Profile updated");
+  await user.save();
+  return sendResponse(
+    res,
+    200,
+    true,
+    user,
+    null,
+    "Update Profile successfully"
+  );
 });
 
 userController.forgetPassword = catchAsync(async (req, res, next) => {

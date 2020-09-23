@@ -47,7 +47,7 @@ router.post(
  * @access required
  */
 router.put(
-  "/:id",
+  "/edit/:id",
   authMiddleware.loginRequired,
   validators.validate([
     param("id").exists().isString().custom(validators.checkObjectId),

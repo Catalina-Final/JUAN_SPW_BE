@@ -44,8 +44,46 @@ blogController.getBlogs = catchAsync(async (req, res, next) => {
   );
 });
 
+blogController.getBlogsPerUser = catchAsync(async (req, res, next) => {
+  const userId = req.params.id;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 9;
+  let filter = { ...req.query.filter };
+
+  const totalBlogs = await Event.find({
+    ...filter,
+    author: req.userId,
+  }).countDocuments();
+  const totalPages = Math.ceil(totalEvents / limit);
+  const offset = limit * (page - 1);
+
+  // begin  sorting query
+  const sortBy = req.query.sortBy || {};
+  if (!sortBy.createdAt) {
+    sortBy.createdAt = 1;
+  }
+  console.log(sortBy);
+  // end
+
+  const blogs = await Event.find({ ...filter, author: req.userId })
+    .sort(sortBy)
+    .skip(offset)
+    .limit(limit)
+    .populate("author")
+    .populate("type");
+
+  return sendResponse(
+    res,
+    200,
+    true,
+    { blogs, totalPages, totalResults: totalBlogs },
+    null,
+    ""
+  );
+});
+
 blogController.getSingleBlog = catchAsync(async (req, res, next) => {
-  const blog = await Blog.findById(req.params.id);
+  const blog = await Blog.findById(req.params.id).populate("author");
   if (!blog) return next(new Error("Blog not Found"));
 
   return sendResponse(res, 200, true, blog, null, null);
