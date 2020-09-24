@@ -24,7 +24,7 @@ eventController.getEvents = catchAsync(async (req, res, next) => {
   // begin  sorting query
   const sortBy = req.query.sortBy || {};
   if (!sortBy.createdAt) {
-    sortBy.createdAt = 1;
+    sortBy.createdAt = -1;
   }
 
   console.log(sortBy);
