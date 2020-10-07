@@ -30,7 +30,7 @@ reviewController.getReviewsOfBlog = catchAsync(async (req, res, next) => {
   const blogId = req.params.blogId;
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
-  const totalReviews = await Review.countDocuments();
+  const totalReviews = await Review.estimatedDocumentCount();
   const totalPages = Math.ceil(totalReviews / limit);
   const offset = limit * (page - 1);
 

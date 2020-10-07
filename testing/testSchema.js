@@ -112,7 +112,7 @@ const generateData = async () => {
 
 const getRandomBlogs = async (blogNum) => {
   console.log(`Get ${blogNum} random blogs`);
-  const totalBlogNum = await Blog.countDocuments();
+  const totalBlogNum = await Blog.estimatedDocumentCount();
   for (let i = 0; i < blogNum; ++i) {
     const blog = await Blog.findOne()
       .skip(getRandomInt(0, totalBlogNum - 1))

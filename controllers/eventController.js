@@ -17,7 +17,7 @@ eventController.getEvents = catchAsync(async (req, res, next) => {
 
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 9;
-  const totalEvents = await Event.find(filter).countDocuments();
+  const totalEvents = await Event.find(filter).estimatedDocumentCount();
   const totalPages = Math.ceil(totalEvents / limit);
   const offset = limit * (page - 1);
 
@@ -67,7 +67,7 @@ eventController.getEventsPerUser = catchAsync(async (req, res, next) => {
   const totalEvents = await Event.find({
     ...filter,
     author: req.userId,
-  }).countDocuments();
+  }).estimatedDocumentCount();
   const totalPages = Math.ceil(totalEvents / limit);
   const offset = limit * (page - 1);
 

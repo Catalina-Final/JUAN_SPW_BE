@@ -36,7 +36,7 @@ io.use((socket, next) => {
     next(error);
   }
 });
-//dasdsad
+
 io.on("connection", async function (socket) {
   if (!onlineUsers[socket.roomId]) {
     onlineUsers[socket.roomId] = new Set([socket.userId]);

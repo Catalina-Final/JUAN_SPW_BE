@@ -15,7 +15,7 @@ blogController.getBlogs = catchAsync(async (req, res, next) => {
 
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 5;
-  const totalBlogs = await Blog.find(filter).countDocuments();
+  const totalBlogs = await Blog.find(filter).estimatedDocumentCount();
   const totalPages = Math.ceil(totalBlogs / limit);
   const offset = limit * (page - 1);
 
@@ -53,7 +53,7 @@ blogController.getBlogsPerUser = catchAsync(async (req, res, next) => {
   const totalBlogs = await Event.find({
     ...filter,
     author: req.userId,
-  }).countDocuments();
+  }).estimatedDocumentCount();
   const totalPages = Math.ceil(totalEvents / limit);
   const offset = limit * (page - 1);
 
