@@ -72,4 +72,15 @@ router.delete(
 
   blogController.deleteSingleBlog
 );
+
+/**
+ * @route GET api/blogs/user/:id?page=1&limit=10
+ * @description Get blogs with pagination of the current user
+ * @access Login required
+ */
+router.get(
+  "/user/:id",
+  authMiddleware.loginRequired,
+  blogController.getBlogsPerUser
+);
 module.exports = router;

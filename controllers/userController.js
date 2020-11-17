@@ -216,7 +216,7 @@ userController.removeFriendship = catchAsync(async (req, res, next) => {
 
 userController.updateProfile = catchAsync(async (req, res, next) => {
   const userId = req.userId;
-  const allows = ["name", "password", "avatarUrl"];
+  const allows = ["name", "password", "avatarUrl", "coverUrl"];
   const user = await User.findById(userId);
   if (!user) {
     return next(new AppError(404, "Account not found", "Update Profile Error"));

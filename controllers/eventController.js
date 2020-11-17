@@ -61,7 +61,7 @@ eventController.getEvents = catchAsync(async (req, res, next) => {
 eventController.getEventsPerUser = catchAsync(async (req, res, next) => {
   const userId = req.params.id;
   const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 9;
+  const limit = parseInt(req.query.limit) || 3;
   let filter = { ...req.query.filter };
 
   const totalEvents = await Event.find({

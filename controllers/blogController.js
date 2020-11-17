@@ -47,14 +47,14 @@ blogController.getBlogs = catchAsync(async (req, res, next) => {
 blogController.getBlogsPerUser = catchAsync(async (req, res, next) => {
   const userId = req.params.id;
   const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 9;
+  const limit = parseInt(req.query.limit) || 5;
   let filter = { ...req.query.filter };
 
-  const totalBlogs = await Event.find({
+  const totalBlogs = await Blog.find({
     ...filter,
     author: req.userId,
   }).estimatedDocumentCount();
-  const totalPages = Math.ceil(totalEvents / limit);
+  const totalPages = Math.ceil(totalBlogs / limit);
   const offset = limit * (page - 1);
 
   // begin  sorting query
@@ -65,7 +65,7 @@ blogController.getBlogsPerUser = catchAsync(async (req, res, next) => {
   console.log(sortBy);
   // end
 
-  const blogs = await Event.find({ ...filter, author: req.userId })
+  const blogs = await Blog.find({ ...filter, author: req.userId })
     .sort(sortBy)
     .skip(offset)
     .limit(limit)
