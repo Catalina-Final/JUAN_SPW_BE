@@ -10,7 +10,7 @@ const authController = {};
 
 authController.loginWithEmail = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email }, "+password");
   if (!user) return next(new Error("Invalid credentials"));
 
   const isMatch = await bcrypt.compare(password, user.password);
@@ -70,7 +70,6 @@ authController.loginWithGoogle = catchAsync(async (req, res, next) => {
       name: data.name,
       avatarUrl: data.picture,
     });
-    console.log("PICTUREE", avatarUrl);
   }
 
   const accessToken = await user.generateToken();

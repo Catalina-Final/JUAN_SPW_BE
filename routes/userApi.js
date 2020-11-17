@@ -57,4 +57,10 @@ router.put("/", authMiddleware.loginRequired, userController.updateProfile);
 
 router.get("/me", authMiddleware.loginRequired, userController.getCurrentUser);
 
+// router.get(
+//   "/users/profile/:id",
+//   authMiddleware.loginRequired,
+//   userController.getUser
+// );
+
 module.exports = router;
