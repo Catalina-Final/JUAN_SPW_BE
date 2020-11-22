@@ -216,7 +216,15 @@ userController.removeFriendship = catchAsync(async (req, res, next) => {
 
 userController.updateProfile = catchAsync(async (req, res, next) => {
   const userId = req.userId;
-  const allows = ["name", "password", "avatarUrl", "coverUrl"];
+  const allows = [
+    "name",
+    "password",
+    "avatarUrl",
+    "coverUrl",
+    "facebook",
+    "instagram",
+    "portfolioUrl",
+  ];
   const user = await User.findById(userId);
   if (!user) {
     return next(new AppError(404, "Account not found", "Update Profile Error"));
@@ -297,6 +305,44 @@ userController.resetPassword = catchAsync(async (req, res, next) => {
   res.send(user);
 
   // update password
+});
+
+// Frienship
+
+userController.getUsers = catchAsync(async (req, res, next) => {
+  // begin filter query
+  let filter = { ...req.query.filter };
+
+  // end
+
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 5;
+  const totalUsers = await User.find(filter).estimatedDocumentCount();
+  const totalPages = Math.ceil(totalUsers / limit);
+  const offset = limit * (page - 1);
+
+  // begin  sorting query
+  const sortBy = req.query.sortBy || {};
+  if (!sortBy.createdAt) {
+    sortBy.createdAt = 1;
+  }
+
+  console.log(sortBy);
+  // end
+
+  const users = await User.find(filter)
+    .sort({ ...sortBy, createdAt: -1 })
+    .skip(offset)
+    .limit(limit);
+
+  return sendResponse(
+    res,
+    200,
+    true,
+    { users, totalPages, totalResults: totalUsers },
+    null,
+    ""
+  );
 });
 
 module.exports = userController;

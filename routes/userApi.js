@@ -21,9 +21,7 @@ router.post(
 );
 
 /* GET users listing. */
-router.get("/", function (req, res, next) {
-  res.send("respond with a resource");
-});
+router.get("/", userController.getUsers);
 
 // GET localhost:5000/api/users/sendtestemail
 router.get(
