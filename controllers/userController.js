@@ -44,44 +44,45 @@ userController.getCurrentUser = catchAsync(async (req, res, next) => {
   );
 });
 
-userController.sendFriendRequest = catchAsync(async (req, res, next) => {
-  const userId = req.userId; // From
-  const toUserId = req.params.id; // To
-  let friendship = await Friendship.findOne({ from: userId, to: toUserId });
-  if (!friendship) {
-    await Friendship.create({
-      from: userId,
-      to: toUserId,
-      status: "requesting",
-    });
-    return sendResponse(res, 200, true, null, null, "Request has ben sent");
-  } else {
-    switch (friendship.status) {
-      case "requesting":
-        return next(new Error("The request has been sent"));
-        break;
-      case "accepted":
-        return next(new Error("Users are already friend"));
-        break;
-      case "accepted":
-      case "decline":
-      case "cancel":
-        friendship.status = "requesting";
-        await friendship.save();
-        return sendResponse(
-          res,
-          200,
-          true,
-          null,
-          null,
-          "Request has been sent"
-        );
-        break;
-      default:
-        break;
+userController.sendFriendRequest = async (req, res, next) => {
+  try {
+    const userId = req.userId; // From
+    const toUserId = req.params.id; // To
+    let friendship = await Friendship.findOne({ from: userId, to: toUserId });
+    if (!friendship) {
+      await Friendship.create({
+        from: userId,
+        to: toUserId,
+        status: "requesting",
+      });
+      return sendResponse(res, 200, true, null, null, "Request has ben sent");
+    } else {
+      switch (friendship.status) {
+        case "requesting":
+          return next(new Error("The request has already been sent"));
+        case "accepted":
+          return next(new Error("Users are already friend"));
+        case "decline":
+        case "cancel":
+          // in case declined or cancelled, we're changing it to requesting
+          friendship.status = "requesting";
+          await friendship.save();
+          return sendResponse(
+            res,
+            200,
+            true,
+            null,
+            null,
+            "Request has ben sent"
+          );
+        default:
+          break;
+      }
     }
+  } catch (error) {
+    next(error);
   }
-});
+};
 
 userController.acceptFriendRequest = catchAsync(async (req, res, next) => {
   const userId = req.userId; // To

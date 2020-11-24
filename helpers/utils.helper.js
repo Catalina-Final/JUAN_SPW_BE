@@ -50,7 +50,6 @@ utilsHelper.createEventTypesIfNotExists = async () => {
         await EventType.create({ type: types[i] });
       }
     }
-    console.log("Created event types");
   } catch (err) {
     console.log(err);
   }
