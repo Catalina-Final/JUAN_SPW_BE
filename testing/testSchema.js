@@ -21,11 +21,11 @@ function getRandomInt(min, max) {
 
 const cleanData = async (startTime) => {
   try {
-    // await User.collection.drop();
-    // await Blog.collection.drop();
-    // await Review.collection.drop();
-    // await Reaction.collection.drop();
-    // await Friendship.collection.drop();
+    await User.collection.drop();
+    await Blog.collection.drop();
+    await Review.collection.drop();
+    await Reaction.collection.drop();
+    await Friendship.collection.drop();
     await mongoose.connection.dropDatabase();
     console.log("| Deleted all data");
     console.log("-------------------------------------------");
@@ -38,7 +38,7 @@ const generateData = async () => {
   try {
     await cleanData();
     let users = [];
-    let blogs = [];
+    // let blogs = [];
     console.log("| Create 10 users:");
     console.log("-------------------------------------------");
     const userNum = 10;
@@ -123,7 +123,7 @@ const getRandomBlogs = async (blogNum) => {
 
 const main = async (resetDB = false) => {
   if (resetDB) await generateData();
-  getRandomBlogs(1);
+  getRandomBlogs(5);
 };
 
 main(true);

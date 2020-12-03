@@ -14,6 +14,11 @@ const userSchema = Schema(
     portfolioUrl: { type: String, required: false },
     instagram: { type: String, required: false },
     password: { type: String },
+    friendhsip: {
+      type: Schema.Types.ObjectId,
+      required: false,
+      ref: "Friendship",
+    },
     friendCount: { type: Number, default: 0 },
     isDeleted: { type: Boolean, default: false },
     room: {
@@ -30,6 +35,7 @@ const userSchema = Schema(
 userSchema.plugin(require("./plugins/isDeletedFalse"));
 
 userSchema.toJSON = function () {
+  const user = this.toObject();
   delete user.password;
   delete user.__v;
   delete user.isDeleted;
