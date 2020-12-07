@@ -74,9 +74,10 @@ userController.sendFriendRequest = catchAsync(async (req, res, next) => {
 });
 userController.acceptFriendRequest = catchAsync(async (req, res, next) => {
   const userId = req.userId; // To
-  const fromUserId = req.params.id; // From
+  const friendshipId = req.params.id; // Friendship id
+  console.log("USERID", userId);
   let friendship = await Friendship.findOne({
-    from: fromUserId,
+    _id: friendshipId,
     to: userId,
     status: "requesting",
   });
@@ -146,24 +147,25 @@ userController.getFriendList = catchAsync(async (req, res, next) => {
     .populate("from")
     .populate("to");
   friendList = friendList.map((friendship) => {
-    const friend = {};
+    let friend = {};
     friend.acceptedAt = friendship.updatedAt;
     if (friendship.from._id.equals(userId)) {
-      friend.user = friendship.to;
+      friend = friendship.to;
     } else {
-      friend.user = friendship.from;
+      friend = friendship.from;
     }
     return friend;
   });
+
   return sendResponse(res, 200, true, { users: friendList }, null, null);
 });
 
 userController.cancelFriendRequest = catchAsync(async (req, res, next) => {
   const userId = req.userId; // From
-  const toUserId = req.params.id; // To
+  const friendshipId = req.params.id; // frienship id
   let friendship = await Friendship.findOne({
+    _id: friendshipId,
     from: userId,
-    to: toUserId,
     status: "requesting",
   });
   console.log("FRIENDSHIP", friendship);
